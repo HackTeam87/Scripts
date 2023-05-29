@@ -1,11 +1,11 @@
 # -*- coding:utf-8 -*-
+# імпортуємо необхідні бібліотеки
 from flask import Flask,request, make_response, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import RPi.GPIO as GPIO
 import time
 
-import RPi.GPIO as GPIO
 
 #Relay_Ch1 = 26
 #Relay_Ch2 = 20
@@ -24,11 +24,14 @@ limiter = Limiter(app, key_func=get_remote_address)
 @limiter.limit("1/second", override_defaults=False)
 
 def index():
+    # Якщо метод запросу POST виконуємо код
     if request.method == 'POST':
         Relay = int(request.form.get('Relay'))
         Status = int(request.form.get('Status'))
         GPIO.setup(Relay,GPIO.OUT)
         data = {'relay_id': Relay, 'status': Status, 'message': 'Done'}
+        
+        # блок передумов
         try:
             if Status == 0:
                 GPIO.output(Relay,GPIO.HIGH)
@@ -43,7 +46,9 @@ def index():
            # return( type(inst), inst.args, inst)
 
     else:
+        # в іншому випадку повертаємо повідомлення
         return make_response(jsonify("Error Not Valid Request"), 404)
 if __name__ == "__main__":
+    # запускаємо web сервер
     app.run(debug="True", host="0.0.0.0")
 
